@@ -14,6 +14,16 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Enable offline persistence
+db.enablePersistence()
+  .catch((err) => {
+    if (err.code == 'failed-precondition') {
+      console.log('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
+    } else if (err.code == 'unimplemented') {
+      console.log('Browser doesn\'t support persistence');
+    }
+  });
+
 // UI elements
 const signInBtn = document.getElementById('sign-in-btn');
 const viewCheckedBtn = document.getElementById('view-checked');
@@ -32,17 +42,25 @@ const authModal = document.getElementById('auth-modal');
 const authClose = document.getElementById('auth-close');
 const signInForm = document.getElementById('sign-in-form');
 const registerForm = document.getElementById('register-form');
-const showRegister = document.getElementById('show-register');
-const showSignin = document.getElementById('show-signin');
+const tabSignin = document.getElementById('tab-signin');
+const tabRegister = document.getElementById('tab-register');
 const googleSigninBtn = document.getElementById('google-signin');
+
+// Tab switching
+function switchAuthTab(showSignIn) {
+  tabSignin.classList.toggle('active', showSignIn);
+  tabRegister.classList.toggle('active', !showSignIn);
+  signInForm.classList.toggle('hidden', !showSignIn);
+  registerForm.classList.toggle('hidden', showSignIn);
+}
+
+tabSignin.addEventListener('click', () => switchAuthTab(true));
+tabRegister.addEventListener('click', () => switchAuthTab(false));
 
 signInBtn.addEventListener('click', async () => {
   if (!currentUser) {
     authModal.classList.remove('hidden');
-    // show sign-in form
-    document.getElementById('auth-title').textContent = 'Sign in';
-    signInForm.classList.remove('hidden');
-    registerForm.classList.add('hidden');
+    switchAuthTab(true); // default to sign-in tab
   } else {
     await auth.signOut();
   }
@@ -58,46 +76,129 @@ googleSigninBtn.addEventListener('click', async () => {
   try { await auth.signInWithPopup(provider); authModal.classList.add('hidden'); } catch(e){ alert(e.message); }
 });
 
-signInForm.addEventListener('submit', async (e)=>{
+// Handle sign in form
+signInForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('sign-email').value.trim();
   const pw = document.getElementById('sign-password').value;
-  try { await auth.signInWithEmailAndPassword(email, pw); authModal.classList.add('hidden'); }
-  catch(e){ alert(e.message); }
+  
+  try {
+    // Sign in with Firebase Auth
+    const userCred = await auth.signInWithEmailAndPassword(email, pw);
+    if (userCred.user) {
+      // Check if user document exists, create if not
+      const userDoc = await db.collection('users').doc(userCred.user.uid).get();
+      if (!userDoc.exists) {
+        await db.collection('users').doc(userCred.user.uid).set({
+          email: userCred.user.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      authModal.classList.add('hidden');
+    }
+  } catch(e) {
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = e.message;
+    signInForm.insertBefore(errorBox, signInForm.firstChild);
+    setTimeout(() => errorBox.remove(), 5000);
+  }
 });
 
-registerForm.addEventListener('submit', async (e)=>{
+// Handle register form
+registerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('reg-email').value.trim();
   const pw = document.getElementById('reg-password').value;
   const conf = document.getElementById('reg-confirm').value;
-  if (pw !== conf) { alert('Passwords do not match'); return; }
-  try { await auth.createUserWithEmailAndPassword(email, pw); authModal.classList.add('hidden'); }
-  catch(e){ alert(e.message); }
+  
+  if (pw !== conf) {
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = 'Passwords do not match';
+    registerForm.insertBefore(errorBox, registerForm.firstChild);
+    setTimeout(() => errorBox.remove(), 5000);
+    return;
+  }
+  
+  try {
+    // Create user in Firebase Auth
+    const userCred = await auth.createUserWithEmailAndPassword(email, pw);
+    if (userCred.user) {
+      // Create user document in Firestore
+      await db.collection('users').doc(userCred.user.uid).set({
+        email: userCred.user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      // Create default bucket list collection
+      await db.collection('users').doc(userCred.user.uid).collection('items').add({
+        text: 'Welcome to your bucket list! Check this item to get started.',
+        checked: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      authModal.classList.add('hidden');
+    }
+  } catch(e) {
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = e.message;
+    registerForm.insertBefore(errorBox, registerForm.firstChild);
+    setTimeout(() => errorBox.remove(), 5000);
+  }
 });
 
 // Show checked modal
 viewCheckedBtn.addEventListener('click', () => {
-  if (!currentUser) { alert('Please sign in to view your checked items.'); return; }
+  if (!currentUser) { 
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = 'Please sign in to view your checked items.';
+    document.querySelector('.card').insertBefore(errorBox, itemsList);
+    setTimeout(() => errorBox.remove(), 3000);
+    return; 
+  }
   checkedModal.classList.remove('hidden');
   loadCheckedItems();
 });
 closeChecked.addEventListener('click', () => checkedModal.classList.add('hidden'));
 
-// Add item
+// Add item with user data
 addForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = newItemInput.value.trim();
   if (!text) return;
-  if (!currentUser) { alert('Please sign in to save items.'); return; }
+  
+  if (!currentUser) { 
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = 'Please sign in to add items to your bucket list.';
+    addForm.insertBefore(errorBox, addForm.firstChild);
+    setTimeout(() => errorBox.remove(), 3000);
+    return; 
+  }
+  
   try {
+    // Add item to user's collection with metadata
     await db.collection('users').doc(currentUser.uid).collection('items').add({
       text,
       checked: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        displayName: currentUser.displayName || null
+      }
     });
     newItemInput.value = '';
-  } catch (e) { alert(e.message); }
+  } catch (e) {
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-message';
+    errorBox.textContent = 'Error adding item. Please try again.';
+    addForm.insertBefore(errorBox, addForm.firstChild);
+    setTimeout(() => errorBox.remove(), 3000);
+  }
 });
 
 // Render items list
