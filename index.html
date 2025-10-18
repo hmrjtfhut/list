@@ -9,19 +9,65 @@
 <body>
   <div class="container">
     <header>
-      <h1>Bucket List</h1>
-      <div id="user-area">
-        <button id="view-checked" title="View checked items">Checked</button>
-        <button id="sign-in-btn">Sign in</button>
+      <div class="header-content">
+        <h1>Bucket List</h1>
+        <div id="user-area">
+          <button id="view-checked" title="View checked items" class="icon-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            Completed
+          </button>
+          <div id="user-profile" class="hidden">
+            <img id="user-avatar" src="" alt="" class="avatar">
+            <div class="user-info">
+              <span id="user-name"></span>
+              <button id="sign-out-btn" class="small-btn">Sign out</button>
+            </div>
+          </div>
+          <button id="sign-in-btn">Sign in</button>
+        </div>
+      </div>
+      <div class="filters">
+        <div class="categories" id="category-filters">
+          <button class="category-btn active" data-category="all">All</button>
+          <button class="category-btn" data-category="travel">Travel</button>
+          <button class="category-btn" data-category="adventure">Adventure</button>
+          <button class="category-btn" data-category="personal">Personal</button>
+          <button class="category-btn" data-category="career">Career</button>
+          <button id="add-category" class="category-btn">+</button>
+        </div>
       </div>
     </header>
 
     <main>
       <section class="card" id="list-card">
-        <ul id="items"></ul>
+        <div class="card-header">
+          <h2>Your Dreams & Goals</h2>
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="list">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+            </button>
+            <button class="view-btn" data-view="grid">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+            </button>
+          </div>
+        </div>
+        
+        <div id="items-container">
+          <ul id="items" class="list-view"></ul>
+        </div>
+
         <form id="add-form">
-          <input id="new-item" placeholder="Add a new bucket-list item..." autocomplete="off">
-          <button type="submit">Add</button>
+          <div class="add-form-content">
+            <input id="new-item" placeholder="Add a new bucket-list item..." autocomplete="off">
+            <select id="item-category">
+              <option value="none">No category</option>
+              <option value="travel">Travel</option>
+              <option value="adventure">Adventure</option>
+              <option value="personal">Personal</option>
+              <option value="career">Career</option>
+            </select>
+            <button type="submit" class="primary-btn">Add</button>
+          </div>
         </form>
       </section>
     </main>
@@ -36,29 +82,40 @@
 
       <!-- Auth Modal -->
       <div id="auth-modal" class="modal hidden">
-        <div class="modal-content" style="min-width:360px;">
-          <button id="auth-close">Close</button>
-          <h2 id="auth-title">Sign in</h2>
-
+        <div class="modal-content auth-box">
+          <button id="auth-close">×</button>
+          <div class="auth-tabs">
+            <button id="tab-signin" class="auth-tab active">Sign In</button>
+            <button id="tab-register" class="auth-tab">Register</button>
+          </div>
           <div id="auth-forms">
             <form id="sign-in-form" class="auth-form">
-              <input id="sign-email" type="email" placeholder="Email" required>
-              <input id="sign-password" type="password" placeholder="Password" required>
-              <button type="submit">Sign in</button>
-              <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-                <button type="button" id="google-signin">Sign in with Google</button>
-                <a href="#" id="show-register" class="small">Create account</a>
+              <div class="form-group">
+                <label for="sign-email">Email</label>
+                <input id="sign-email" type="email" placeholder="Email" required>
               </div>
+              <div class="form-group">
+                <label for="sign-password">Password</label>
+                <input id="sign-password" type="password" placeholder="Password" required>
+              </div>
+              <button type="submit" class="primary-btn">Sign in</button>
+              <div class="divider"><span>or</span></div>
+              <button type="button" id="google-signin" class="google-btn">Sign in with Google</button>
             </form>
-
             <form id="register-form" class="auth-form hidden">
-              <input id="reg-email" type="email" placeholder="Email" required>
-              <input id="reg-password" type="password" placeholder="Password" required>
-              <input id="reg-confirm" type="password" placeholder="Confirm password" required>
-              <button type="submit">Register</button>
-              <div style="margin-top:8px">
-                <a href="#" id="show-signin" class="small">Already have an account? Sign in</a>
+              <div class="form-group">
+                <label for="reg-email">Email</label>
+                <input id="reg-email" type="email" placeholder="Email" required>
               </div>
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input id="reg-password" type="password" placeholder="Password" required>
+              </div>
+              <div class="form-group">
+                <label for="reg-confirm">Confirm Password</label>
+                <input id="reg-confirm" type="password" placeholder="Confirm password" required>
+              </div>
+              <button type="submit" class="primary-btn">Register</button>
             </form>
           </div>
         </div>
