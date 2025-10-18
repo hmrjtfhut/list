@@ -1,0 +1,34 @@
+:root{
+  --bg1:#ff9a9e;
+  --bg2:#fad0c4;
+  --card:#ffffffee;
+  --accent:#6a11cb;
+}
+html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial}
+body{
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  display:flex;align-items:center;justify-content:center;padding:32px;
+}
+.container{width:100%;max-width:760px}
+header{display:flex;justify-content:space-between;align-items:center;color:white}
+header h1{margin:0;font-weight:700;letter-spacing:1px}
+#user-area{display:flex;gap:8px}
+button{background:rgba(255,255,255,0.15);border:0;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
+button:hover{background:rgba(255,255,255,0.22)}
+main{margin-top:24px}
+.card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+#items{list-style:none;padding:0;margin:0;max-height:420px;overflow:auto}
+#items li{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid #eee}
+#items li:last-child{border-bottom:0}
+#items input[type='checkbox']{width:20px;height:20px}
+#add-form{display:flex;gap:8px;margin-top:12px}
+#add-form input{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd}
+#add-form button{padding:10px 14px;border-radius:8px}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35)}
+.modal.hidden{display:none}
+.modal-content{background:white;padding:18px;border-radius:10px;min-width:320px;max-width:90%;max-height:80%;overflow:auto}
+.modal-content button{float:right;background:#eee;color:#333}
+.small{font-size:0.9rem;color:#666}
+#items .meta{margin-left:auto;font-size:0.8rem;color:#666}
+/* small responsive tweaks */
+@media (max-width:420px){.container{padding:8px}header h1{font-size:1.2rem}}
