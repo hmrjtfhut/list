@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bucket List</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Bucket List</h1>
+      <div id="user-area">
+        <button id="view-checked" title="View checked items">Checked</button>
+        <button id="sign-in-btn">Sign in</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" id="list-card">
+        <ul id="items"></ul>
+        <form id="add-form">
+          <input id="new-item" placeholder="Add a new bucket-list item..." autocomplete="off">
+          <button type="submit">Add</button>
+        </form>
+      </section>
+    </main>
+
+    <div id="checked-modal" class="modal hidden">
+      <div class="modal-content">
+        <button id="close-checked">Close</button>
+        <h2>Checked Items</h2>
+        <ol id="checked-list"></ol>
+      </div>
+    </div>
+
+      <!-- Auth Modal -->
+      <div id="auth-modal" class="modal hidden">
+        <div class="modal-content" style="min-width:360px;">
+          <button id="auth-close">Close</button>
+          <h2 id="auth-title">Sign in</h2>
+
+          <div id="auth-forms">
+            <form id="sign-in-form" class="auth-form">
+              <input id="sign-email" type="email" placeholder="Email" required>
+              <input id="sign-password" type="password" placeholder="Password" required>
+              <button type="submit">Sign in</button>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+                <button type="button" id="google-signin">Sign in with Google</button>
+                <a href="#" id="show-register" class="small">Create account</a>
+              </div>
+            </form>
+
+            <form id="register-form" class="auth-form hidden">
+              <input id="reg-email" type="email" placeholder="Email" required>
+              <input id="reg-password" type="password" placeholder="Password" required>
+              <input id="reg-confirm" type="password" placeholder="Confirm password" required>
+              <button type="submit">Register</button>
+              <div style="margin-top:8px">
+                <a href="#" id="show-signin" class="small">Already have an account? Sign in</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    <!-- Firebase and app script -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="app.js"></script>
+  </div>
+</body>
+</html>
