@@ -3,24 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Bucket List</title>
+  <title>Bucket List Social</title>
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="header-content">
-        <h1>Bucket List</h1>
+        <h1>Bucket List Social</h1>
+        <nav class="main-nav">
+          <a href="#" class="nav-item active" data-page="home">
+            <i class="material-icons">home</i>
+            <span>Home</span>
+          </a>
+          <a href="#" class="nav-item" data-page="feed">
+            <i class="material-icons">dynamic_feed</i>
+            <span>Feed</span>
+          </a>
+          <a href="#" class="nav-item" data-page="following">
+            <i class="material-icons">people</i>
+            <span>Following</span>
+          </a>
+          <a href="#" class="nav-item" data-page="explore">
+            <i class="material-icons">explore</i>
+            <span>Explore</span>
+          </a>
+        </nav>
         <div id="user-area">
-          <button id="view-checked" title="View checked items" class="icon-btn">
-            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-            Completed
+          <button id="view-checked" title="View completed items" class="icon-btn">
+            <i class="material-icons">check_circle</i>
+            <span>Completed</span>
           </button>
           <div id="user-profile" class="hidden">
             <img id="user-avatar" src="" alt="" class="avatar">
             <div class="user-info">
               <span id="user-name"></span>
-              <button id="sign-out-btn" class="small-btn">Sign out</button>
+              <div class="user-menu">
+                <button id="settings-btn" class="small-btn">
+                  <i class="material-icons">settings</i>
+                </button>
+                <button id="sign-out-btn" class="small-btn">Sign out</button>
+              </div>
             </div>
           </div>
           <button id="sign-in-btn">Sign in</button>
@@ -39,15 +64,18 @@
     </header>
 
     <main>
-      <section class="card" id="list-card">
-        <div class="card-header">
-          <h2>Your Dreams & Goals</h2>
-          <div class="view-toggle">
-            <button class="view-btn active" data-view="list">
-              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-            </button>
-            <button class="view-btn" data-view="grid">
-              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+      <section class="page" id="home-page">
+        <section class="card" id="list-card">
+          <div class="card-header">
+            <h2>Your Dreams & Goals</h2>
+            <div class="view-toggle">
+              <button class="view-btn active" data-view="list">
+                <i class="material-icons">view_list</i>
+              </button>
+              <button class="view-btn" data-view="grid">
+                <i class="material-icons">grid_view</i>
+              </button>
+            </div>
             </button>
           </div>
         </div>
@@ -80,48 +108,44 @@
       </div>
     </div>
 
-      <!-- Auth Modal -->
-      <div id="auth-modal" class="modal hidden">
-        <div class="modal-content auth-box">
-          <button id="auth-close">×</button>
-          <div class="auth-tabs">
-            <button id="tab-signin" class="auth-tab active">Sign In</button>
-            <button id="tab-register" class="auth-tab">Register</button>
-          </div>
-          <div id="auth-forms">
-            <form id="sign-in-form" class="auth-form">
-              <div class="form-group">
-                <label for="sign-email">Email</label>
-                <input id="sign-email" type="email" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <label for="sign-password">Password</label>
-                <input id="sign-password" type="password" placeholder="Password" required>
-              </div>
-              <button type="submit" class="primary-btn">Sign in</button>
-              <div class="divider"><span>or</span></div>
-              <button type="button" id="google-signin" class="google-btn">Sign in with Google</button>
-            </form>
-            <form id="register-form" class="auth-form hidden">
-              <div class="form-group">
-                <label for="reg-email">Email</label>
-                <input id="reg-email" type="email" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <label for="reg-password">Password</label>
-                <input id="reg-password" type="password" placeholder="Password" required>
-              </div>
-              <div class="form-group">
-                <label for="reg-confirm">Confirm Password</label>
-                <input id="reg-confirm" type="password" placeholder="Confirm password" required>
-              </div>
-              <button type="submit" class="primary-btn">Register</button>
-            </form>
-          </div>
+      </section>
+      
+      <section class="page hidden" id="feed-page">
+        <div class="card">
+          <h2>Latest Achievements</h2>
+          <div id="feed-posts" class="posts-grid"></div>
         </div>
-      </div>
+      </section>
 
-    <!-- Firebase and app script -->
+      <section class="page hidden" id="following-page">
+        <div class="card">
+          <h2>Following Feed</h2>
+          <div id="following-posts" class="posts-grid"></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="explore-page">
+        <div class="card">
+          <h2>Discover Dreams</h2>
+          <div class="search-bar">
+            <i class="material-icons">search</i>
+            <input type="text" id="explore-search" placeholder="Search dreams and achievements...">
+          </div>
+          <div id="explore-content" class="posts-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="tabs">
+            <button id="tab-signin" class="tab active">Sign In</button>
+            <button id="tab-register" class="tab">Register</button>
+          </div>
+          <button id="auth-close" class="close-btn"><i class="material-icons">close</i></button>
+        </div>    <!-- Firebase and app script -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
